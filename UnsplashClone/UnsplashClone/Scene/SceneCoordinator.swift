@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 extension UIViewController {
     var sceneViewController: UIViewController {
@@ -14,6 +16,8 @@ extension UIViewController {
 }
 
 class SceneCoordinator: SceneCoordinatorType {
+    private let bag = DisposeBag()
+    
     private var window: UIWindow
     private var currentVC: UIViewController
     
@@ -22,58 +26,144 @@ class SceneCoordinator: SceneCoordinatorType {
         currentVC = window.rootViewController!
     }
     
-    func transition(to scene: Scene, using style: TranstionStyle, animated: Bool) {
+    func transition(to scene: Scene, using style: TranstionStyle, animated: Bool) -> Completable {
+        let subject = PublishSubject<Void>()
+        
         let target = scene.instantiate(sceneCoordinator: self)
         switch style {
         case .root:
-           currentVC = target.sceneViewController
-           window.rootViewController = target
+            currentVC = target.sceneViewController
+            window.rootViewController = target
+            subject.onCompleted()
         case .push:
-           print(currentVC)
-           guard let nav = currentVC.navigationController else {
-              print("nav error")
-              break
-           }
-           nav.pushViewController(target, animated: animated)
-           currentVC = target.sceneViewController
+            guard let nav = currentVC.navigationController
+            else {
+                subject.onError(TransitionError.navigationControllerMissing)
+                break
+            }
+            nav.rx.willShow
+                .subscribe(onNext: { [unowned self] evt in
+                    self.currentVC = evt.viewController.sceneViewController
+                }).disposed(by: bag)
+            currentVC = target.sceneViewController
+            
+            subject.onCompleted()
         case .modal:
-           currentVC.present(target, animated: animated)
-           currentVC = target.sceneViewController
+            currentVC.present(target, animated: animated) {
+                subject.onCompleted()
+            }
+            currentVC = target.sceneViewController
         }
         
+        return subject.ignoreElements().asCompletable()
     }
     
-    func close(animated: Bool) {
-        if let presentingVC = currentVC.presentingViewController {
-            let indexPath: IndexPath? = {
-                if let vc = currentVC as? DetailViewController {
-                    return vc.detailCollectionView.visibleIndexPath
+    func close(animated: Bool) -> Completable {
+        return Completable.create { [unowned self] completable in
+            if let presentingVC = self.currentVC.presentingViewController {
+                let indexPath: IndexPath? = {
+                    if let vc = currentVC as? DetailViewController {
+                        return vc.detailCollectionView.visibleIndexPath
+                    }
+                    return nil
+                }()
+                
+                self.currentVC.dismiss(animated: animated) {
+                    self.currentVC = presentingVC.sceneViewController
+                    
+                    if let vc = currentVC as? PhotoViewController {
+                        if vc.isSearch {
+                            vc.bindWithSearchedPhoto()
+                        } else {
+                            vc.bindWithPhoto()
+                        }
+                        if let indexPath = indexPath {
+                            vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
+                        }
+                    }
+                    
+                    completable(.completed)
                 }
-                return nil
-            }()
+            } else if let nav = self.currentVC.navigationController {
+                guard nav.popViewController(animated: animated) != nil else {
+                    completable(.error(TransitionError.cannotPop))
+                    return Disposables.create()
+                }
+                
+                self.currentVC = nav.viewControllers.last!
+                
+                completable(.completed)
+            } else {
+                completable(.error(TransitionError.unknown))
+            }
             
-            currentVC.dismiss(animated: animated) { [unowned self] in
-                self.currentVC = presentingVC.sceneViewController
-                if let vc = currentVC as? PhotoViewController {
-                    if vc.isSearch {
-                        vc.bindWithSearchedPhoto()
-                    } else {
-                        vc.bindWithPhoto()
-                    }
-                    if let indexPath = indexPath {
-                        vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
-                    }
-                }
-            }
-        } else if let nav = currentVC.navigationController {
-            guard nav.popViewController(animated: animated) != nil else {
-                print(TransitionError.navigationControllerMissing)
-                return
-            }
-            currentVC = nav.viewControllers.last!
-        } else {
-            print("error")
+            return Disposables.create()
         }
     }
-    
 }
+
+
+//class SceneCoordinator: SceneCoordinatorType {
+//    private var window: UIWindow
+//    private var currentVC: UIViewController
+//
+//    required init(window: UIWindow) {
+//        self.window = window
+//        currentVC = window.rootViewController!
+//    }
+//
+//    func transition(to scene: Scene, using style: TranstionStyle, animated: Bool) {
+//        let target = scene.instantiate(sceneCoordinator: self)
+//        switch style {
+//        case .root:
+//           currentVC = target.sceneViewController
+//           window.rootViewController = target
+//        case .push:
+//           print(currentVC)
+//           guard let nav = currentVC.navigationController else {
+//              print("nav error")
+//              break
+//           }
+//           nav.pushViewController(target, animated: animated)
+//           currentVC = target.sceneViewController
+//        case .modal:
+//           currentVC.present(target, animated: animated)
+//           currentVC = target.sceneViewController
+//        }
+//
+//    }
+//
+//    func close(animated: Bool) {
+//        if let presentingVC = currentVC.presentingViewController {
+//            let indexPath: IndexPath? = {
+//                if let vc = currentVC as? DetailViewController {
+//                    return vc.detailCollectionView.visibleIndexPath
+//                }
+//                return nil
+//            }()
+//
+//            currentVC.dismiss(animated: animated) { [unowned self] in
+//                self.currentVC = presentingVC.sceneViewController
+//                if let vc = currentVC as? PhotoViewController {
+//                    if vc.isSearch {
+//                        vc.bindWithSearchedPhoto()
+//                    } else {
+//                        vc.bindWithPhoto()
+//                    }
+//                    if let indexPath = indexPath {
+//                        vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
+//                    }
+//                }
+//            }
+//        } else if let nav = currentVC.navigationController {
+//            guard nav.popViewController(animated: animated) != nil else {
+//                print(TransitionError.navigationControllerMissing)
+//                return
+//            }
+//            currentVC = nav.viewControllers.last!
+//        } else {
+//            print("error")
+//        }
+//    }
+//
+//}
