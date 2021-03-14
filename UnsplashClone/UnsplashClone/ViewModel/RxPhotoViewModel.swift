@@ -6,3 +6,8 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
+import RxDataSources
+
+typealias SectionModel = AnimatableSectionModel<Int, Photo>
