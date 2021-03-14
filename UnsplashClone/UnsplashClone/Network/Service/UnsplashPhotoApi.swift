@@ -5,11 +5,13 @@
 //  Created by 박성민 on 2021/03/14.
 //
 
-import Foundation
+import UIKit
 import RxSwift
 
 class UnsplashPhotoApi: PhotoApiType {
     private let urlSession = URLSession.shared
+    private let imageCache = NSCache<NSString, UIImage>()
+    
     
     @discardableResult
     func fetchRandomPhoto() -> Observable<Photo?> {
@@ -66,4 +68,27 @@ class UnsplashPhotoApi: PhotoApiType {
             }
             .catchAndReturn([])
     }
+    
+    @discardableResult
+    func fetchImage(endPoint: EndPointType) -> Observable<UIImage?> {
+        guard let url = endPoint.url else {
+            return Observable.error(NetworkError.urlNotSupport)
+        }
+        
+        if let cachedImage = imageCache.object(forKey: url.lastPathComponent as NSString) {
+            return Observable.just(cachedImage)
+        }
+        
+        let request = URLRequest(url: url)
+        
+        return urlSession.rx
+            .data(request: request)
+            .map { UIImage(data: $0) }
+            .catchAndReturn(nil)
+    }
+    
+    func removeCache() {
+        imageCache.removeAllObjects()
+    }
+    
 }

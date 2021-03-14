@@ -6,14 +6,16 @@
 //
 
 import Foundation
+import RxDataSources
 
-class Photo: Codable {
+class Photo: Codable, IdentifiableType {
     let id: String
     let photoURLs: PhotoURLs
     let username: String
     let width: Int
     let height: Int
     let sponsored: Bool
+    var identity: String
     
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -23,6 +25,7 @@ class Photo: Codable {
         width = try container.decode(Int.self, forKey: .width)
         height = try container.decode(Int.self, forKey: .height)
         sponsored = try !container.decodeNil(forKey: .sponsored)
+        identity = id
     }
 }
 

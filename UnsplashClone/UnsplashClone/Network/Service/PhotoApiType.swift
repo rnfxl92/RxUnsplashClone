@@ -5,7 +5,7 @@
 //  Created by 박성민 on 2021/03/14.
 //
 
-import Foundation
+import UIKit
 import RxSwift
 
 protocol PhotoApiType {
@@ -18,5 +18,7 @@ protocol PhotoApiType {
 
     @discardableResult
     func fetchSearchedPhotos(page: Int, perPage: Int, query: String) -> Observable<[Photo]>
-
+    
+    @discardableResult
+    func fetchImage(endPoint: EndPointType) -> Observable<UIImage?>
 }
