@@ -18,11 +18,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
         
         let sceneCoordinator = SceneCoordinator(window: window!)
-        let photoService = PhotoService()
-        let imageService = ImageService()
+        let photoApi = UnsplashPhotoApi()
         
-        let viewModel = PhotoViewModel(sceneCoordinator: sceneCoordinator, photoService: photoService, imageService: imageService)
-        
+        let viewModel = RxPhotoViewModel(sceneCoordinator: sceneCoordinator, photoApi: photoApi)
         let scene = Scene.photo(viewModel)
 
         sceneCoordinator.transition(to: scene, using: .root, animated: false)

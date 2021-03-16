@@ -33,11 +33,14 @@ class UnsplashPhotoApi: PhotoApiType {
     
     @discardableResult
     func fetchPhotos(page: Int, perPage: Int) -> Observable<[Photo]> {
-        guard let url = UnsplashEndPoint.photos(page: page, perPage: perPage).url else {
+        let endPoint = UnsplashEndPoint.photos(page: page, perPage: perPage)
+        guard let url = endPoint.url else {
             return Observable.error(NetworkError.urlNotSupport)
         }
         
-        let request = URLRequest(url: url)
+        var request = URLRequest(url: url)
+        request.httpMethod = endPoint.method.rawValue
+        request.allHTTPHeaderFields = endPoint.headers
         
         return urlSession.rx
             .data(request: request)

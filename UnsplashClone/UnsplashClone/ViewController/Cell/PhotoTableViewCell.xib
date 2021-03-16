@@ -60,6 +60,7 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <accessibility key="accessibilityConfiguration" identifier="PhotoCell"/>
             <connections>
                 <outlet property="photoImageView" destination="l7u-oD-Gj5" id="BNE-EQ-TXF"/>
                 <outlet property="sponsoredLabel" destination="q6a-AS-40k" id="Yao-GB-Sox"/>

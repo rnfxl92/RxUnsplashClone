@@ -8,7 +8,7 @@
 import UIKit
 
 enum Scene {
-    case photo(PhotoViewModel)
+    case photo(RxPhotoViewModel)
     case detail(PhotoViewModel, IndexPath, String?)
 }
 
@@ -26,7 +26,7 @@ extension Scene {
         DispatchQueue.main.async {
             vc.bind(viewModel: viewModel)
         }
-        vc.coordinator = sceneCoordinator
+        //vc.coordinator = sceneCoordinator
         return vc
       case .detail(let viewModel, let indexPath, let query):
         guard var vc = storyboard.instantiateViewController(withIdentifier: "DetailVC") as? DetailViewController

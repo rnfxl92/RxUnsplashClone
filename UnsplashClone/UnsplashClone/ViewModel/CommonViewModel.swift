@@ -13,7 +13,7 @@ class CommonViewModel: NSObject {
     let sceneCoordinator: SceneCoordinatorType
     let photoApi: PhotoApiType
     
-    init(sceneCoordinator: SceneCoordinatorType, photoApi: PhotoApiType, imageService: ImageServicing) {
+    init(sceneCoordinator: SceneCoordinatorType, photoApi: PhotoApiType) {
         self.sceneCoordinator = sceneCoordinator
         self.photoApi = photoApi
     }

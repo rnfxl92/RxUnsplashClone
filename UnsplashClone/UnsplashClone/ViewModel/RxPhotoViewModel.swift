@@ -17,18 +17,20 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
     private var photoList = [Photo]()
     private var searchedPhotoList = [Photo]()
     private var lastQuery = ""
+    lazy var headerPhoto = photoApi.fetchRandomPhoto().asDriver(onErrorJustReturn: nil)
     
-    func fetchPhotoData(page: Int, perPage: Int) -> Driver<SectionModel> {
+    
+    func fetchPhotoData(page: Int, perPage: Int) -> Driver<[SectionModel]> {
         return photoApi.fetchPhotos(page: page, perPage: perPage)
             .asDriver(onErrorJustReturn: [Photo]())
             .map { [unowned self] newPhotos in
                 self.photoList.append(contentsOf: newPhotos)
-                return SectionModel(model: 0, items: self.photoList)
+                return [SectionModel(model: 0, items: self.photoList)]
             }
-            .asDriver(onErrorJustReturn: SectionModel(model: 0, items: [Photo]()))
+            .asDriver(onErrorJustReturn: [])
     }
     
-    func fetchSearchedPhotoData(page: Int, perPage: Int, query: String) -> Driver<SectionModel> {
+    func fetchSearchedPhotoData(page: Int, perPage: Int, query: String) -> Driver<[SectionModel]> {
         return photoApi.fetchSearchedPhotos(page: page, perPage: perPage, query: query)
             .asDriver(onErrorJustReturn: [Photo]())
             .map { [unowned self] searchedPhotos in
@@ -38,9 +40,9 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
                     self.searchedPhotoList = searchedPhotos
                 }
                 
-                return SectionModel(model: 0, items: self.searchedPhotoList)
+                return [SectionModel(model: 0, items: self.searchedPhotoList)]
             }
-            .asDriver(onErrorJustReturn: SectionModel(model: 0, items: [Photo]()))
+            .asDriver(onErrorJustReturn: [])
     }
 
     let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
@@ -56,6 +58,5 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
 
         return ds
     }()
-    
     
 }

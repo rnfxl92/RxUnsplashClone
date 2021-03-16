@@ -119,9 +119,9 @@ class SceneCoordinator: SceneCoordinatorType {
                 self.currentVC = presentingVC.sceneViewController
                 if let vc = currentVC as? PhotoViewController {
                     if vc.isSearch {
-                        vc.bindWithSearchedPhoto()
+                        //vc.bindWithSearchedPhoto()
                     } else {
-                        vc.bindWithPhoto()
+                        //vc.bindWithPhoto()
                     }
                     if let indexPath = indexPath {
                         vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
