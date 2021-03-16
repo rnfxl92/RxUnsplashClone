@@ -9,12 +9,42 @@ import Foundation
 import RxSwift
 import RxCocoa
 import RxDataSources
+import NSObject_Rx
 
-typealias PhotoSectionModel = AnimatableSectionModel<Int, Photo>
+typealias SectionModel = AnimatableSectionModel<Int, Photo>
 
-class RxPhotoViewModel: CommonViewModel {
-    let dataSource: RxTableViewSectionedAnimatedDataSource<PhotoSectionModel> = {
-        let ds = RxTableViewSectionedAnimatedDataSource<PhotoSectionModel>(configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
+class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
+    private var photoList = [Photo]()
+    private var searchedPhotoList = [Photo]()
+    private var lastQuery = ""
+    
+    func fetchPhotoData(page: Int, perPage: Int) -> Driver<SectionModel> {
+        return photoApi.fetchPhotos(page: page, perPage: perPage)
+            .asDriver(onErrorJustReturn: [Photo]())
+            .map { [unowned self] newPhotos in
+                self.photoList.append(contentsOf: newPhotos)
+                return SectionModel(model: 0, items: self.photoList)
+            }
+            .asDriver(onErrorJustReturn: SectionModel(model: 0, items: [Photo]()))
+    }
+    
+    func fetchSearchedPhotoData(page: Int, perPage: Int, query: String) -> Driver<SectionModel> {
+        return photoApi.fetchSearchedPhotos(page: page, perPage: perPage, query: query)
+            .asDriver(onErrorJustReturn: [Photo]())
+            .map { [unowned self] searchedPhotos in
+                if lastQuery == query {
+                self.searchedPhotoList.append(contentsOf: searchedPhotos)
+                } else {
+                    self.searchedPhotoList = searchedPhotos
+                }
+                
+                return SectionModel(model: 0, items: self.searchedPhotoList)
+            }
+            .asDriver(onErrorJustReturn: SectionModel(model: 0, items: [Photo]()))
+    }
+
+    let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
+        let ds = RxTableViewSectionedAnimatedDataSource<SectionModel>(configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoTableViewCell.Identifier.reusableCell, for: indexPath) as? PhotoTableViewCell else {
                 return UITableViewCell()
             }
@@ -23,12 +53,9 @@ class RxPhotoViewModel: CommonViewModel {
             
             return cell
         })
-        
-        ds.canEditRowAtIndexPath = { _, _ in
-            return true
-        }
+
         return ds
     }()
     
-    //TODO: - Action 및 datasource에 api 요청을 통해 photo 추가하기
+    
 }
