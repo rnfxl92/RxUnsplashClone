@@ -58,7 +58,8 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
     private func configureTableVeiw() {
         PhotoTableViewCell.registerNib(tableView: photoTableView)
         
-        photoTableView.delegate = self
+        photoTableView.rx.setDelegate(self)
+            .disposed(by: rx.disposeBag)
         photoTableView.rowHeight =
             UITableView.automaticDimension
         
@@ -72,7 +73,6 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
         
     }
     
-    
     @objc func removeKeypad() {
         searchBar.resignFirstResponder()
     }
@@ -80,7 +80,14 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
 }
 
 extension PhotoViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let photo = viewModel.dataSource[indexPath]
+        
+        let width = tableView.frame.width
+        let ratio = CGFloat(photo.height) / CGFloat(photo.width)
+        
+        return width * ratio
+    }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateHeaderView()
