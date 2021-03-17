@@ -12,13 +12,15 @@ class UnsplashPhotoApi: PhotoApiType {
     private let urlSession = URLSession.shared
     private let imageCache = NSCache<NSString, UIImage>()
     
-    
     @discardableResult
     func fetchRandomPhoto() -> Observable<Photo?> {
         guard let url = UnsplashEndPoint.randomPhoto.url else {
             return Observable.error(NetworkError.urlNotSupport)
         }
-        let request = URLRequest(url: url)
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = UnsplashEndPoint.randomPhoto.method.rawValue
+        request.allHTTPHeaderFields = UnsplashEndPoint.randomPhoto.headers
         
         return urlSession.rx
             .data(request: request)
@@ -82,7 +84,9 @@ class UnsplashPhotoApi: PhotoApiType {
             return Observable.just(cachedImage)
         }
         
-        let request = URLRequest(url: url)
+        var request = URLRequest(url: url)
+        request.httpMethod = endPoint.method.rawValue
+        request.allHTTPHeaderFields = endPoint.headers
         
         return urlSession.rx
             .data(request: request)

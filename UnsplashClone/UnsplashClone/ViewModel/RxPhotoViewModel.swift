@@ -17,8 +17,7 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
     private var photoList = [Photo]()
     private var searchedPhotoList = [Photo]()
     private var lastQuery = ""
-    lazy var headerPhoto = photoApi.fetchRandomPhoto().asDriver(onErrorJustReturn: nil)
-    
+    lazy var headerPhoto = photoApi.fetchRandomPhoto()
     
     func fetchPhotoData(page: Int, perPage: Int) -> Driver<[SectionModel]> {
         return photoApi.fetchPhotos(page: page, perPage: perPage)
