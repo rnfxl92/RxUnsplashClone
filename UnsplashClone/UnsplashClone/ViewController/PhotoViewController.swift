@@ -32,6 +32,7 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
         guard let headerView = headerView as? PhotoTableViewHeaderView else {
             return
         }
+        
         viewModel.headerPhoto
             .map {
                 $0?.username
@@ -45,10 +46,10 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
                     return
                 }
                 headerView.configureUserLabel(username: photo.username)
+
+                let width = Int(self.photoTableView.frame.width * UIScreen.main.scale)
                 
-                let endPoint = UnsplashEndPoint.photoURL(url: photo.photoURLs.regular, width: Int(self.photoTableView.frame.width))
-                
-                self.viewModel.photoApi.fetchImage(endPoint: endPoint)
+                self.viewModel.fetchImage(url: photo.photoURLs.regular, width: width)
                     .bind(to: headerView.headerImageView.rx.image)
                     .disposed(by: rx.disposeBag)
             })
@@ -89,6 +90,32 @@ extension PhotoViewController: UITableViewDelegate {
         return width * ratio
     }
 
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let itemCount = viewModel.dataSource.sectionModels[0].items.count
+        if indexPath.item == itemCount - 1 {
+            print("aaa")
+            let page = Int(ceil(Double(itemCount) / Double(CommonValues.perPage))) + 1
+            if searchBar.text != nil && isSearch {
+                viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: searchBar.text!)
+            } else {
+                viewModel.fetchPhotoData(page: page, perPage: CommonValues.perPage)
+                
+            }
+        }
+        
+        let photo = viewModel.dataSource[indexPath]
+        guard let photoCell = cell as? PhotoTableViewCell else {
+            return
+        }
+        
+        let width = Int(tableView.frame.width * UIScreen.main.scale)
+    
+        viewModel.fetchImage(url: photo.photoURLs.regular, width: width)
+            .asDriver(onErrorJustReturn: nil)
+            .drive(photoCell.photoImageView.rx.image)
+            .disposed(by: rx.disposeBag)
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateHeaderView()
     }

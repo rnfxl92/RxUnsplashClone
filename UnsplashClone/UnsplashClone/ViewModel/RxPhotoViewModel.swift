@@ -19,6 +19,22 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
     private var lastQuery = ""
     lazy var headerPhoto = photoApi.fetchRandomPhoto()
     
+    let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
+        let ds = RxTableViewSectionedAnimatedDataSource<SectionModel>(configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoTableViewCell.Identifier.reusableCell, for: indexPath) as? PhotoTableViewCell else {
+                return UITableViewCell()
+            }
+            
+            cell.configureCell(username: photo.username, sponsored: photo.sponsored, imageSize: cell.frame.size)
+            
+            return cell
+        })
+
+        return ds
+    }()
+    
+    var photoData: Driver<[SectionModel]>
+    
     func fetchPhotoData(page: Int, perPage: Int) -> Driver<[SectionModel]> {
         return photoApi.fetchPhotos(page: page, perPage: perPage)
             .asDriver(onErrorJustReturn: [Photo]())
@@ -44,18 +60,10 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
             .asDriver(onErrorJustReturn: [])
     }
 
-    let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
-        let ds = RxTableViewSectionedAnimatedDataSource<SectionModel>(configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoTableViewCell.Identifier.reusableCell, for: indexPath) as? PhotoTableViewCell else {
-                return UITableViewCell()
-            }
-            
-            cell.configureCell(username: photo.username, sponsored: photo.sponsored, imageSize: cell.frame.size)
-            
-            return cell
-        })
-
-        return ds
-    }()
-    
+    func fetchImage(url: String, width: Int) -> Observable<UIImage?> {
+        
+        let endPoint = UnsplashEndPoint.photoURL(url: url, width: width)
+        
+        return photoApi.fetchImage(endPoint: endPoint)
+    }
 }
