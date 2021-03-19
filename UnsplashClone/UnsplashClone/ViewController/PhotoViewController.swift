@@ -93,7 +93,6 @@ extension PhotoViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let itemCount = viewModel.dataSource.sectionModels[0].items.count
         if indexPath.item == itemCount - 1 {
-            print("aaa")
             let page = Int(ceil(Double(itemCount) / Double(CommonValues.perPage))) + 1
             if searchBar.text != nil && isSearch {
                 viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: searchBar.text!)

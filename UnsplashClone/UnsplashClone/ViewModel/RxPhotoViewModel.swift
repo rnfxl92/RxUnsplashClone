@@ -32,9 +32,7 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
 
         return ds
     }()
-    
-    var photoData: Driver<[SectionModel]>
-    
+
     func fetchPhotoData(page: Int, perPage: Int) -> Driver<[SectionModel]> {
         return photoApi.fetchPhotos(page: page, perPage: perPage)
             .asDriver(onErrorJustReturn: [Photo]())
