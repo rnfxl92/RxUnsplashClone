@@ -19,9 +19,11 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
     private var lastQuery = ""
     lazy var headerPhoto = photoApi.fetchRandomPhoto()
     var photoData = PublishSubject<[SectionModel]>()
+    var searchedPhotoData = PublishSubject<[SectionModel]>()
 
     let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
-        let ds = RxTableViewSectionedAnimatedDataSource<SectionModel>(configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
+        let ds = RxTableViewSectionedAnimatedDataSource<SectionModel>(
+            configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoTableViewCell.Identifier.reusableCell, for: indexPath) as? PhotoTableViewCell else {
                 return UITableViewCell()
             }
@@ -44,25 +46,25 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
             .disposed(by: rx.disposeBag)
     }
     
-    func fetchSearchedPhotoData(page: Int, perPage: Int, query: String) -> Driver<[SectionModel]> {
-        return photoApi.fetchSearchedPhotos(page: page, perPage: perPage, query: query)
-            .asDriver(onErrorJustReturn: [Photo]())
-            .map { [unowned self] searchedPhotos in
-                if lastQuery == query {
+    func fetchSearchedPhotoData(page: Int, perPage: Int, query: String) {
+       photoApi.fetchSearchedPhotos(page: page, perPage: perPage, query: query)
+        .subscribe(onNext: { [unowned self] searchedPhotos in
+            if query == self.lastQuery {
                 self.searchedPhotoList.append(contentsOf: searchedPhotos)
-                } else {
-                    self.searchedPhotoList = searchedPhotos
-                }
-                
-                return [SectionModel(model: 0, items: self.searchedPhotoList)]
+            } else {
+                self.lastQuery = query
+                self.searchedPhotoList = searchedPhotos
             }
-            .asDriver(onErrorJustReturn: [])
+            
+            let sectionModel = SectionModel(model: 0, items: self.searchedPhotoList)
+            self.searchedPhotoData.onNext([sectionModel])
+        })
+        .disposed(by: rx.disposeBag)
     }
+    
 
     func fetchImage(url: String, width: Int) -> Observable<UIImage?> {
-        
         let endPoint = UnsplashEndPoint.photoURL(url: url, width: width)
-        
         return photoApi.fetchImage(endPoint: endPoint)
     }
 }

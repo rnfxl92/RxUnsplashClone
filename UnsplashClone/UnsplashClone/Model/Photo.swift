@@ -25,17 +25,18 @@ class Photo: Codable, IdentifiableType {
         width = try container.decode(Int.self, forKey: .width)
         height = try container.decode(Int.self, forKey: .height)
         sponsored = try !container.decodeNil(forKey: .sponsored)
-        identity = id
+        identity = id + photoURLs.raw
     }
 }
 
 extension Photo: Hashable {
     static func == (lhs: Photo, rhs: Photo) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id && lhs.photoURLs.raw == rhs.photoURLs.raw
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(photoURLs.raw)
     }
 }
 

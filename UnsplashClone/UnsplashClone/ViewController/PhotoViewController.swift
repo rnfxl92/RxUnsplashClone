@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 final class PhotoViewController: UIViewController, ViewModelBindableType {
     
@@ -98,11 +99,11 @@ extension PhotoViewController: UITableViewDelegate {
         let itemCount = viewModel.dataSource.sectionModels[0].items.count
         if indexPath.item == itemCount - 1 {
             let page = Int(ceil(Double(itemCount) / Double(CommonValues.perPage))) + 1
-            if searchBar.text != nil && isSearch {
-                viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: searchBar.text!)
+            if let text = searchBar.text,
+               isSearch {
+                viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: text)
             } else {
                 viewModel.fetchPhotoData(page: page, perPage: CommonValues.perPage)
-                
             }
         }
         
@@ -145,7 +146,11 @@ extension PhotoViewController: UISearchBarDelegate {
             return
         }
         isSearch = true
-
+        photoTableView.dataSource = nil
+        viewModel.searchedPhotoData
+            .asDriver(onErrorJustReturn: [])
+            .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
+            .disposed(by: rx.disposeBag)
         viewModel.fetchSearchedPhotoData(page: 1, perPage: CommonValues.perPage, query: searchBarText)
     }
 
@@ -157,5 +162,10 @@ extension PhotoViewController: UISearchBarDelegate {
         isSearch = false
         searchBar.text = ""
         searchBar.resignFirstResponder()
+        photoTableView.dataSource = nil
+        viewModel.photoData
+            .asDriver(onErrorJustReturn: [])
+            .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
+            .disposed(by: rx.disposeBag)
     }
 }

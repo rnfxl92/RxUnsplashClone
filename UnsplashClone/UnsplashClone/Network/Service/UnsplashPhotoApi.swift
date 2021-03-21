@@ -52,16 +52,18 @@ class UnsplashPhotoApi: PhotoApiType {
                 return try decoder.decode([Photo].self, from: data)
             }
             .catchAndReturn([])
-        
     }
     
     @discardableResult
     func fetchSearchedPhotos(page: Int, perPage: Int, query: String) -> Observable<[Photo]> {
-        guard let url = UnsplashEndPoint.searchPhotos(page: page, perPage: perPage, query: query).url else {
+        let endPoint = UnsplashEndPoint.searchPhotos(page: page, perPage: perPage, query: query)
+        guard let url = endPoint.url else {
             return Observable.error(NetworkError.urlNotSupport)
         }
         
-        let request = URLRequest(url: url)
+        var request = URLRequest(url: url)
+        request.httpMethod = endPoint.method.rawValue
+        request.allHTTPHeaderFields = endPoint.headers
         
         return urlSession.rx
             .data(request: request)
