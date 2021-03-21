@@ -18,7 +18,8 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
     private var searchedPhotoList = [Photo]()
     private var lastQuery = ""
     lazy var headerPhoto = photoApi.fetchRandomPhoto()
-    
+    var photoData = PublishSubject<[SectionModel]>()
+
     let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
         let ds = RxTableViewSectionedAnimatedDataSource<SectionModel>(configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoTableViewCell.Identifier.reusableCell, for: indexPath) as? PhotoTableViewCell else {
@@ -33,14 +34,14 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
         return ds
     }()
 
-    func fetchPhotoData(page: Int, perPage: Int) -> Driver<[SectionModel]> {
-        return photoApi.fetchPhotos(page: page, perPage: perPage)
-            .asDriver(onErrorJustReturn: [Photo]())
-            .map { [unowned self] newPhotos in
-                self.photoList.append(contentsOf: newPhotos)
-                return [SectionModel(model: 0, items: self.photoList)]
-            }
-            .asDriver(onErrorJustReturn: [])
+    func fetchPhotoData(page: Int, perPage: Int) {
+        photoApi.fetchPhotos(page: page, perPage: perPage)
+            .subscribe(onNext: { [unowned self] photos in
+                self.photoList.append(contentsOf: photos)
+                let sectionModel = SectionModel(model: 0, items: self.photoList)
+                self.photoData.onNext([sectionModel])
+            })
+            .disposed(by: rx.disposeBag)
     }
     
     func fetchSearchedPhotoData(page: Int, perPage: Int, query: String) -> Driver<[SectionModel]> {

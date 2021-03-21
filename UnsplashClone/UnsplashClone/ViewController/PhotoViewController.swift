@@ -25,9 +25,13 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
     }
     
     func bindViewModel() {
-        viewModel.fetchPhotoData(page: 0, perPage: CommonValues.perPage)
+
+        viewModel.photoData
+            .asDriver(onErrorJustReturn: [])
             .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
             .disposed(by: rx.disposeBag)
+        
+        viewModel.fetchPhotoData(page: 0, perPage: CommonValues.perPage)
         
         guard let headerView = headerView as? PhotoTableViewHeaderView else {
             return
