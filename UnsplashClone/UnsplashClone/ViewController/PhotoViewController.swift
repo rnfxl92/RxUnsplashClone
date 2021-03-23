@@ -77,6 +77,10 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
         
         updateHeaderView()
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(removeKeypad))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
     }
     
     @objc func removeKeypad() {
@@ -157,8 +161,9 @@ extension PhotoViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }
-
+    
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        
         isSearch = false
         searchBar.text = ""
         searchBar.resignFirstResponder()
@@ -167,5 +172,6 @@ extension PhotoViewController: UISearchBarDelegate {
             .asDriver(onErrorJustReturn: [])
             .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
             .disposed(by: rx.disposeBag)
+        photoTableView.reloadData()
     }
 }

@@ -18,7 +18,7 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
     private var searchedPhotoList = [Photo]()
     private var lastQuery = ""
     lazy var headerPhoto = photoApi.fetchRandomPhoto()
-    var photoData = PublishSubject<[SectionModel]>()
+    lazy var photoData = BehaviorSubject<[SectionModel]>(value: [SectionModel(model: 0, items: photoList)])
     var searchedPhotoData = PublishSubject<[SectionModel]>()
 
     let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
@@ -61,7 +61,6 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
         })
         .disposed(by: rx.disposeBag)
     }
-    
 
     func fetchImage(url: String, width: Int) -> Observable<UIImage?> {
         let endPoint = UnsplashEndPoint.photoURL(url: url, width: width)
