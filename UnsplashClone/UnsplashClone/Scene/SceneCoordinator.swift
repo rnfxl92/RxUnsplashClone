@@ -16,6 +16,7 @@ extension UIViewController {
 }
 
 class SceneCoordinator: SceneCoordinatorType {
+    
     private let bag = DisposeBag()
     
     private var window: UIWindow
@@ -62,81 +63,78 @@ class SceneCoordinator: SceneCoordinatorType {
     // TODO: - 추가 ViewModel 만들고 Action으로 close를 연결하자
     
     
-    //    @discardableResult
-    //    func close(animated: Bool) -> Completable {
-    //        return Completable.create { [unowned self] completable in
-    //            if let presentingVC = self.currentVC.presentingViewController {
-    //                let indexPath: IndexPath? = {
-    //                    if let vc = currentVC as? DetailViewController {
-    //                        return vc.detailCollectionView.visibleIndexPath
-    //                    }
-    //                    return nil
-    //                }()
-    //
-    //                self.currentVC.dismiss(animated: animated) {
-    //                    self.currentVC = presentingVC.sceneViewController
-    //
-    //                    if let vc = currentVC as? PhotoViewController {
-    //                        if vc.isSearch {
-    //                            vc.bindWithSearchedPhoto()
-    //                        } else {
-    //                            vc.bindWithPhoto()
-    //                        }
-    //                        if let indexPath = indexPath {
-    //                            vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
-    //                        }
-    //                    }
-    //
-    //                    completable(.completed)
-    //                }
-    //            } else if let nav = self.currentVC.navigationController {
-    //                guard nav.popViewController(animated: animated) != nil else {
-    //                    completable(.error(TransitionError.cannotPop))
-    //                    return Disposables.create()
-    //                }
-    //
-    //                self.currentVC = nav.viewControllers.last!
-    //
-    //                completable(.completed)
-    //            } else {
-    //                completable(.error(TransitionError.unknown))
-    //            }
-    //
-    //            return Disposables.create()
-    //        }
-    //    }
+        @discardableResult
+        func close(animated: Bool) -> Completable {
+            return Completable.create { [unowned self] completable in
+                if let presentingVC = self.currentVC.presentingViewController {
+                    let indexPath: IndexPath? = {
+                        if let vc = currentVC as? DetailViewController {
+                            return vc.detailCollectionView.visibleIndexPath
+                        }
+                        return nil
+                    }()
     
-    func close(animated: Bool) {
-        if let presentingVC = currentVC.presentingViewController {
-            let indexPath: IndexPath? = {
-                if let vc = currentVC as? DetailViewController {
-                    return vc.detailCollectionView.visibleIndexPath
-                }
-                return nil
-            }()
-            
-            currentVC.dismiss(animated: animated) { [unowned self] in
-                self.currentVC = presentingVC.sceneViewController
-                if let vc = currentVC as? PhotoViewController {
-                    if vc.isSearch {
-                        //vc.bindWithSearchedPhoto()
-                    } else {
-                        //vc.bindWithPhoto()
+                    self.currentVC.dismiss(animated: animated) {
+                        self.currentVC = presentingVC.sceneViewController
+    
+                        if let vc = currentVC as? PhotoViewController {
+                            
+                            if let indexPath = indexPath {
+                                vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
+                            }
+                        }
+    
+                        completable(.completed)
                     }
-                    if let indexPath = indexPath {
-                        vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
+                } else if let nav = self.currentVC.navigationController {
+                    guard nav.popViewController(animated: animated) != nil else {
+                        completable(.error(TransitionError.cannotPop))
+                        return Disposables.create()
                     }
+    
+                    self.currentVC = nav.viewControllers.last!
+    
+                    completable(.completed)
+                } else {
+                    completable(.error(TransitionError.unknown))
                 }
+    
+                return Disposables.create()
             }
-        } else if let nav = currentVC.navigationController {
-            guard nav.popViewController(animated: animated) != nil else {
-                print(TransitionError.navigationControllerMissing)
-                return
-            }
-            currentVC = nav.viewControllers.last!
-        } else {
-            print("error")
         }
-    }
-    
 }
+    
+//    func close(animated: Bool) {
+//        if let presentingVC = currentVC.presentingViewController {
+//            let indexPath: IndexPath? = {
+//                if let vc = currentVC as? DetailViewController {
+//                    return vc.detailCollectionView.visibleIndexPath
+//                }
+//                return nil
+//            }()
+//
+//            currentVC.dismiss(animated: animated) { [unowned self] in
+//                self.currentVC = presentingVC.sceneViewController
+//                if let vc = currentVC as? PhotoViewController {
+//                    if vc.isSearch {
+//                        //vc.bindWithSearchedPhoto()
+//                    } else {
+//                        //vc.bindWithPhoto()
+//                    }
+//                    if let indexPath = indexPath {
+//                        vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
+//                    }
+//                }
+//            }
+//        } else if let nav = currentVC.navigationController {
+//            guard nav.popViewController(animated: animated) != nil else {
+//                print(TransitionError.navigationControllerMissing)
+//                return
+//            }
+//            currentVC = nav.viewControllers.last!
+//        } else {
+//            print("error")
+//        }
+//    }
+//
+//}
