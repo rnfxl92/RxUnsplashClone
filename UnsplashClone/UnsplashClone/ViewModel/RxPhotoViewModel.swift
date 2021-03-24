@@ -14,8 +14,8 @@ import NSObject_Rx
 typealias SectionModel = AnimatableSectionModel<Int, Photo>
 
 class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
-    private var photoList = [Photo]()
-    private var searchedPhotoList = [Photo]()
+    var photoList = [Photo]()
+    var searchedPhotoList = [Photo]()
     private var lastQuery = ""
     lazy var headerPhoto = photoApi.fetchRandomPhoto()
     lazy var photoData = BehaviorSubject<[SectionModel]>(value: [SectionModel(model: 0, items: photoList)])

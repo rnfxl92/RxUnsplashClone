@@ -26,7 +26,7 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
     }
     
     func bindViewModel() {
-
+        
         viewModel.photoData
             .asDriver(onErrorJustReturn: [])
             .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
@@ -43,7 +43,7 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
                 $0?.username
             }.bind(to: headerView.userLabel.rx.text)
             .disposed(by: rx.disposeBag)
-            
+        
         viewModel.headerPhoto
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: {[unowned self] photo in
@@ -51,7 +51,7 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
                     return
                 }
                 headerView.configureUserLabel(username: photo.username)
-
+                
                 let width = Int(self.photoTableView.frame.width * UIScreen.main.scale)
                 
                 self.viewModel.fetchImage(url: photo.photoURLs.regular, width: width)
@@ -98,7 +98,31 @@ extension PhotoViewController: UITableViewDelegate {
         
         return width * ratio
     }
-
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        if isSearch {
+            let detailViewModel = RxDetailViewModel(
+                sceneCoordinator: viewModel.sceneCoordinator,
+                photoApi: viewModel.photoApi,
+                photoList: viewModel.searchedPhotoList,
+                query: searchBar.text)
+            let detailScene = Scene.detail(detailViewModel, indexPath, searchBar.text)
+            
+            viewModel.sceneCoordinator.transition(to: detailScene, using: .modal, animated: true)
+        } else {
+            let detailViewModel = RxDetailViewModel(
+                sceneCoordinator: viewModel.sceneCoordinator,
+                photoApi: viewModel.photoApi,
+                photoList: viewModel.photoList
+                )
+            let detailScene = Scene.detail(detailViewModel, indexPath, nil)
+            
+            viewModel.sceneCoordinator.transition(to: detailScene, using: .modal, animated: true)
+        }
+        
+    }
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let itemCount = viewModel.dataSource.sectionModels[0].items.count
         if indexPath.item == itemCount - 1 {
@@ -117,7 +141,7 @@ extension PhotoViewController: UITableViewDelegate {
         }
         
         let width = Int(tableView.frame.width * UIScreen.main.scale)
-    
+        
         viewModel.fetchImage(url: photo.photoURLs.regular, width: width)
             .asDriver(onErrorJustReturn: nil)
             .drive(photoCell.photoImageView.rx.image)
@@ -142,7 +166,7 @@ extension PhotoViewController: UITableViewDelegate {
 }
 
 extension PhotoViewController: UISearchBarDelegate {
-
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         guard let searchBarText = searchBar.text,
               searchBarText != "" else {
@@ -157,7 +181,7 @@ extension PhotoViewController: UISearchBarDelegate {
             .disposed(by: rx.disposeBag)
         viewModel.fetchSearchedPhotoData(page: 1, perPage: CommonValues.perPage, query: searchBarText)
     }
-
+    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }

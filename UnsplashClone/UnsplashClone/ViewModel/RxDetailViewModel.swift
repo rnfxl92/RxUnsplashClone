@@ -14,12 +14,10 @@ import NSObject_Rx
 
 class RxDetailViewModel: CommonViewModel, HasDisposeBag {
     private var photoList: [Photo]
-    private let isSearch: Bool
-    private let query: String
+    private var query: String?
     
-    init(sceneCoordinator: SceneCoordinatorType, photoApi: PhotoApiType, photoList: [Photo], isSearch: Bool, query: String = "") {
+    init(sceneCoordinator: SceneCoordinatorType, photoApi: PhotoApiType, photoList: [Photo], query: String? = nil) {
         self.photoList = photoList
-        self.isSearch = isSearch
         self.query = query
         
         super.init(sceneCoordinator: sceneCoordinator, photoApi: photoApi)

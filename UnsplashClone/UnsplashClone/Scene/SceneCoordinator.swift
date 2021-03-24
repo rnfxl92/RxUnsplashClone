@@ -60,9 +60,6 @@ class SceneCoordinator: SceneCoordinatorType {
         return subject.ignoreElements().asCompletable()
     }
     
-    // TODO: - 추가 ViewModel 만들고 Action으로 close를 연결하자
-    
-    
         @discardableResult
         func close(animated: Bool) -> Completable {
             return Completable.create { [unowned self] completable in

@@ -9,7 +9,7 @@ import UIKit
 
 enum Scene {
     case photo(RxPhotoViewModel)
-    case detail(PhotoViewModel, IndexPath, String?)
+    case detail(RxDetailViewModel, IndexPath, String?)
 }
 
 extension Scene {
