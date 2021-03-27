@@ -99,11 +99,12 @@ extension DetailViewController: UICollectionViewDelegate {
         
         if indexPath.item == itemCount - 1 {
             let page = Int(ceil(Double(itemCount) / Double(CommonValues.perPage))) + 1
-            if let text = query {
-                //viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: text)
+            if query != nil {
+                viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage)
             } else {
-                //viewModel.fetchPhotoData(page: page, perPage: CommonValues.perPage)
+                viewModel.fetchPhotoData(page: page, perPage: CommonValues.perPage)
             }
+            
         }
         
         let photo = viewModel.dataSource[indexPath]
@@ -111,9 +112,9 @@ extension DetailViewController: UICollectionViewDelegate {
             return
         }
 
-        let width = Int(collectionView.frame.width * UIScreen.main.scale)
+        let width = Int(collectionView.frame.width)
 
-        viewModel.fetchImage(url: photo.photoURLs.raw, width: width)
+        viewModel.fetchImage(url: photo.photoURLs.full, width: width)
             .asDriver(onErrorJustReturn: nil)
             .drive(photoCell.photoImageView.rx.image)
             .disposed(by: rx.disposeBag)

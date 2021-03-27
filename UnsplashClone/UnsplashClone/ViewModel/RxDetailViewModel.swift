@@ -68,6 +68,7 @@ class RxDetailViewModel: CommonViewModel, HasDisposeBag {
     }
     
     lazy var closeAction = CocoaAction { [unowned self] in
+        // TODO: - 닫고나서 photoList 처리하기
         return self.sceneCoordinator.close(animated: true).asObservable().map { _ in }
     }
     
