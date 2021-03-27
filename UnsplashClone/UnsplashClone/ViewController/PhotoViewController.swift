@@ -64,7 +64,9 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
     private func configureTableVeiw() {
         PhotoTableViewCell.registerNib(tableView: photoTableView)
         
-        photoTableView.rx.setDelegate(self)
+        photoTableView
+            .rx
+            .setDelegate(self)
             .disposed(by: rx.disposeBag)
         photoTableView.rowHeight =
             UITableView.automaticDimension

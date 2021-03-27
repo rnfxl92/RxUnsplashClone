@@ -169,6 +169,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="closeButton" destination="k9W-8k-s1K" id="OGr-g5-hrF"/>
                         <outlet property="detailCollectionView" destination="tzm-eH-Mn8" id="TT1-nM-sqe"/>
                         <outlet property="navigationBar" destination="3bl-Qv-b1a" id="Cru-aq-giW"/>
                         <outlet property="navigationTitleItem" destination="I8z-yY-QmH" id="84j-Fk-JPj"/>

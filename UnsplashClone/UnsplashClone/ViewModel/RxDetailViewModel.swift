@@ -40,5 +40,4 @@ class RxDetailViewModel: CommonViewModel, HasDisposeBag {
         return self.sceneCoordinator.close(animated: true).asObservable().map { _ in }
     }
     
-    
 }

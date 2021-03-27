@@ -7,12 +7,15 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
+import NSObject_Rx
 
 final class DetailViewController: UIViewController, ViewModelBindableType {
     
     @IBOutlet weak var navigationBar: UINavigationBar!
     @IBOutlet weak var navigationTitleItem: UINavigationItem!
     @IBOutlet weak var detailCollectionView: UICollectionView!
+    @IBOutlet weak var closeButton: UIBarButtonItem!
     
     weak var coordinator: SceneCoordinatorType?
     var viewModel: RxDetailViewModel!
@@ -33,14 +36,13 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-    
+
     func bindViewModel() {
         
         if query != nil && query != "" {
         }
+        
+        closeButton.rx.action = viewModel.closeAction
     }
     
 //    func scrollToDefaultPhoto() {
@@ -55,7 +57,10 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
 //    }
     
     private func configureCollectionView() {
-        detailCollectionView.delegate = self
+        detailCollectionView
+            .rx
+            .setDelegate(self)
+            .disposed(by: rx.disposeBag)
     }
     
     private func configureTransparentNavigationBar() {
