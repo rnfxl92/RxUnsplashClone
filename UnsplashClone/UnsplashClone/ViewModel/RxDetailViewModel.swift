@@ -13,8 +13,9 @@ import RxDataSources
 import NSObject_Rx
 
 class RxDetailViewModel: CommonViewModel, HasDisposeBag {
-    private var photoList: [Photo]
+    var photoList = [Photo]()
     private var query: String?
+    lazy var photoData = BehaviorSubject<[SectionModel]>(value: [SectionModel(model: 0, items: photoList)])
     
     init(sceneCoordinator: SceneCoordinatorType, photoApi: PhotoApiType, photoList: [Photo], query: String? = nil) {
         self.photoList = photoList
@@ -35,6 +36,36 @@ class RxDetailViewModel: CommonViewModel, HasDisposeBag {
 
         return ds
     }()
+    
+    func fetchPhotoData(page: Int, perPage: Int) {
+        photoApi.fetchPhotos(page: page, perPage: perPage)
+            .subscribe(onNext: { [unowned self] photos in
+                self.photoList.append(contentsOf: photos)
+                let sectionModel = SectionModel(model: 0, items: self.photoList)
+                
+                self.photoData.onNext([sectionModel])
+            })
+            .disposed(by: rx.disposeBag)
+    }
+    
+    func fetchSearchedPhotoData(page: Int, perPage: Int) {
+        guard let query = query else {
+            return
+        }
+       photoApi.fetchSearchedPhotos(page: page, perPage: perPage, query: query)
+        .subscribe(onNext: { [unowned self] searchedPhotos in
+            self.photoList.append(contentsOf: searchedPhotos)
+            let sectionModel = SectionModel(model: 0, items: self.photoList)
+            
+            self.photoData.onNext([sectionModel])
+        })
+        .disposed(by: rx.disposeBag)
+    }
+
+    func fetchImage(url: String, width: Int) -> Observable<UIImage?> {
+        let endPoint = UnsplashEndPoint.photoURL(url: url, width: width)
+        return photoApi.fetchImage(endPoint: endPoint)
+    }
     
     lazy var closeAction = CocoaAction { [unowned self] in
         return self.sceneCoordinator.close(animated: true).asObservable().map { _ in }

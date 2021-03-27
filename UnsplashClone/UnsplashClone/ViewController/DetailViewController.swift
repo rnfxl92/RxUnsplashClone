@@ -42,7 +42,13 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
         if query != nil && query != "" {
         }
         
+        viewModel.photoData
+            .asDriver(onErrorJustReturn: [])
+            .drive(detailCollectionView.rx.items(dataSource: viewModel.dataSource))
+            .disposed(by: rx.disposeBag)
+        
         closeButton.rx.action = viewModel.closeAction
+        
     }
     
 //    func scrollToDefaultPhoto() {
@@ -61,6 +67,7 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
             .rx
             .setDelegate(self)
             .disposed(by: rx.disposeBag)
+        
     }
     
     private func configureTransparentNavigationBar() {
@@ -85,39 +92,34 @@ extension DetailViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-//extension DetailViewController: UICollectionViewDelegate {
-//
-//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-//        if indexPath.item == dataSource.collectionView(collectionView, numberOfItemsInSection: 0) - 1 {
-//            let page = Int(ceil(Double(dataSource.collectionView(collectionView, numberOfItemsInSection: 0)) / Double(CommonValues.perPage))) + 1
-//            if let query = query {
-//                viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: query)
-//            } else {
-//                viewModel.fetchPhotoData(page: page, perPage: CommonValues.perPage)
-//            }
-//        }
-//
-//        guard let photoCell = cell as? DetailCollectionViewCell,
-//              let photo = dataSource.itemIdentifier(for: indexPath)
-//        else {
-//            return
-//        }
-//
-//        let width = Int(collectionView.frame.width * UIScreen.main.scale)
-//
-//        viewModel.fetchImage(url: photo.photoURLs.raw, width: width) { result in
-//            switch result {
-//            case .success(let image):
-//                DispatchQueue.main.async {
-//                    photoCell.configureImage(image: image)
-//                }
-//            case .failure(let error):
-//                print(error)
-//            }
-//        }
-//    }
-//}
-//
+extension DetailViewController: UICollectionViewDelegate {
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let itemCount = viewModel.dataSource.sectionModels[0].items.count
+        
+        if indexPath.item == itemCount - 1 {
+            let page = Int(ceil(Double(itemCount) / Double(CommonValues.perPage))) + 1
+            if let text = query {
+                //viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: text)
+            } else {
+                //viewModel.fetchPhotoData(page: page, perPage: CommonValues.perPage)
+            }
+        }
+        
+        let photo = viewModel.dataSource[indexPath]
+        guard let photoCell = cell as? DetailCollectionViewCell else {
+            return
+        }
+
+        let width = Int(collectionView.frame.width * UIScreen.main.scale)
+
+        viewModel.fetchImage(url: photo.photoURLs.raw, width: width)
+            .asDriver(onErrorJustReturn: nil)
+            .drive(photoCell.photoImageView.rx.image)
+            .disposed(by: rx.disposeBag)
+    }
+}
+
 //extension DetailViewController: UIScrollViewDelegate {
 //    func scrollViewDidScroll(_ scrollView: UIScrollView) {
 //        guard let visibleIndexPath = detailCollectionView.visibleIndexPath else {
