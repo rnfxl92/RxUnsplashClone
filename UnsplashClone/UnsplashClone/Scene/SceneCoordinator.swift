@@ -64,18 +64,26 @@ class SceneCoordinator: SceneCoordinatorType {
         func close(animated: Bool) -> Completable {
             return Completable.create { [unowned self] completable in
                 if let presentingVC = self.currentVC.presentingViewController {
-                    let indexPath: IndexPath? = {
-                        if let vc = currentVC as? DetailViewController {
-                            return vc.detailCollectionView.visibleIndexPath
-                        }
-                        return nil
-                    }()
-    
+                    guard let detailVC = currentVC as? DetailViewController else {
+                        self.currentVC.dismiss(animated: animated)
+                        completable(.completed)
+                        return Disposables.create()
+                    }
+                    
+                    let indexPath = detailVC.detailCollectionView.visibleIndexPath
+                    let photoList = detailVC.viewModel.photoList
                     self.currentVC.dismiss(animated: animated) {
                         self.currentVC = presentingVC.sceneViewController
-    
                         if let vc = currentVC as? PhotoViewController {
-                            
+                            if vc.isSearch {
+                                vc.viewModel.searchedPhotoList = photoList
+                                vc.viewModel.searchedPhotoData
+                                    .onNext([SectionModel(model: 0, items: vc.viewModel.searchedPhotoList)])
+                            } else {
+                                vc.viewModel.photoList = photoList
+                                vc.viewModel.photoData
+                                    .onNext([SectionModel(model: 0, items: vc.viewModel.photoList)])
+                            }
                             if let indexPath = indexPath {
                                 vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
                             }
