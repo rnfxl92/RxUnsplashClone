@@ -108,38 +108,3 @@ class SceneCoordinator: SceneCoordinatorType {
             }
         }
 }
-    
-//    func close(animated: Bool) {
-//        if let presentingVC = currentVC.presentingViewController {
-//            let indexPath: IndexPath? = {
-//                if let vc = currentVC as? DetailViewController {
-//                    return vc.detailCollectionView.visibleIndexPath
-//                }
-//                return nil
-//            }()
-//
-//            currentVC.dismiss(animated: animated) { [unowned self] in
-//                self.currentVC = presentingVC.sceneViewController
-//                if let vc = currentVC as? PhotoViewController {
-//                    if vc.isSearch {
-//                        //vc.bindWithSearchedPhoto()
-//                    } else {
-//                        //vc.bindWithPhoto()
-//                    }
-//                    if let indexPath = indexPath {
-//                        vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
-//                    }
-//                }
-//            }
-//        } else if let nav = currentVC.navigationController {
-//            guard nav.popViewController(animated: animated) != nil else {
-//                print(TransitionError.navigationControllerMissing)
-//                return
-//            }
-//            currentVC = nav.viewControllers.last!
-//        } else {
-//            print("error")
-//        }
-//    }
-//
-//}

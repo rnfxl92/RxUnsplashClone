@@ -29,14 +29,13 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
         configureTransparentNavigationBar()
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         if firstCall {
-            //scrollToDefaultPhoto()
+            scrollToDefaultPhoto()
         }
     }
     
-
     func bindViewModel() {
         
         if query != nil && query != "" {
@@ -51,16 +50,17 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
         
     }
     
-//    func scrollToDefaultPhoto() {
-//        guard let defaultIndexPath = defaultIndexPath,
-//              let photo = dataSource.itemIdentifier(for: defaultIndexPath) else {
-//            return
-//        }
-//
-//        detailCollectionView.scrollToItem(at: defaultIndexPath, at: .left, animated: false)
-//        navigationTitleItem.title = photo.username
-//        firstCall = false
-//    }
+    func scrollToDefaultPhoto() {
+        guard let defaultIndexPath = defaultIndexPath else {
+            return
+        }
+        print(defaultIndexPath)
+        let photo = viewModel.dataSource[defaultIndexPath]
+        print(photo.username)
+        detailCollectionView.scrollToItem(at: defaultIndexPath, at: .right, animated: false)
+        navigationTitleItem.title = photo.username
+        firstCall = false
+    }
     
     private func configureCollectionView() {
         detailCollectionView
@@ -121,12 +121,12 @@ extension DetailViewController: UICollectionViewDelegate {
     }
 }
 
-//extension DetailViewController: UIScrollViewDelegate {
-//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        guard let visibleIndexPath = detailCollectionView.visibleIndexPath else {
-//            return
-//        }
-//
-//        navigationTitleItem.title = dataSource.itemIdentifier(for: visibleIndexPath)?.username ?? ""
-//    }
-//}
+extension DetailViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let visibleIndexPath = detailCollectionView.visibleIndexPath else {
+            return
+        }
+
+        navigationTitleItem.title = viewModel.dataSource[visibleIndexPath].username
+    }
+}
