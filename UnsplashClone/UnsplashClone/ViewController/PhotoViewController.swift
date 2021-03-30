@@ -54,7 +54,7 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
                 
                 let width = Int(self.photoTableView.frame.width * UIScreen.main.scale)
                 
-                self.viewModel.fetchImage(url: photo.photoURLs.regular, width: width)
+                self.viewModel.fetchImage(url: photo.photoURLs.small, width: width)
                     .bind(to: headerView.headerImageView.rx.image)
                     .disposed(by: rx.disposeBag)
             })
