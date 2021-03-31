@@ -71,19 +71,10 @@ class SceneCoordinator: SceneCoordinatorType {
                     }
                     
                     let indexPath = detailVC.detailCollectionView.visibleIndexPath
-                    let photoList = detailVC.viewModel.photoList
+
                     self.currentVC.dismiss(animated: animated) {
                         self.currentVC = presentingVC.sceneViewController
                         if let vc = currentVC as? PhotoViewController {
-                            if vc.isSearch {
-                                vc.viewModel.searchedPhotoList = photoList
-                                vc.viewModel.searchedPhotoData
-                                    .onNext([SectionModel(model: 0, items: vc.viewModel.searchedPhotoList)])
-                            } else {
-                                vc.viewModel.photoList = photoList
-                                vc.viewModel.photoData
-                                    .onNext([SectionModel(model: 0, items: vc.viewModel.photoList)])
-                            }
                             if let indexPath = indexPath {
                                 vc.photoTableView.scrollToRow(at: indexPath, at: .top, animated: true)
                             }

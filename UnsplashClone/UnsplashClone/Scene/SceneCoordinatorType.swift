@@ -14,6 +14,5 @@ protocol SceneCoordinatorType: class {
     
     @discardableResult
     func close(animated: Bool) -> Completable
-    
-//    func close(animated: Bool)
+
 }

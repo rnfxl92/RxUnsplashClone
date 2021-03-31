@@ -29,7 +29,6 @@
 		34BB729925DC145D00399F53 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BB729825DC145D00399F53 /* ImageService.swift */; };
 		34C1EF2F25EBDCDC0068C746 /* UICollectionView+visibleIndexPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C1EF2E25EBDCDC0068C746 /* UICollectionView+visibleIndexPath.swift */; };
 		34C1EF3225EBE2400068C746 /* CommonValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C1EF3125EBE2400068C746 /* CommonValues.swift */; };
-		34C452CB260A3CB700D0ABB2 /* RxDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C452CA260A3CB700D0ABB2 /* RxDetailViewModel.swift */; };
 		34C5051C25D6753A0014EEE4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C5051B25D6753A0014EEE4 /* AppDelegate.swift */; };
 		34C5051E25D6753A0014EEE4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C5051D25D6753A0014EEE4 /* SceneDelegate.swift */; };
 		34C5052025D6753A0014EEE4 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C5051F25D6753A0014EEE4 /* PhotoViewController.swift */; };
@@ -76,7 +75,6 @@
 		34BB729825DC145D00399F53 /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		34C1EF2E25EBDCDC0068C746 /* UICollectionView+visibleIndexPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView+visibleIndexPath.swift"; sourceTree = "<group>"; };
 		34C1EF3125EBE2400068C746 /* CommonValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonValues.swift; sourceTree = "<group>"; };
-		34C452CA260A3CB700D0ABB2 /* RxDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RxDetailViewModel.swift; sourceTree = "<group>"; };
 		34C5051825D6753A0014EEE4 /* UnsplashClone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnsplashClone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34C5051B25D6753A0014EEE4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		34C5051D25D6753A0014EEE4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -233,7 +231,6 @@
 			isa = PBXGroup;
 			children = (
 				349FA1D325FE3BC100737C6D /* RxPhotoViewModel.swift */,
-				34C452CA260A3CB700D0ABB2 /* RxDetailViewModel.swift */,
 				349FA1D625FE3FEC00737C6D /* CommonViewModel.swift */,
 			);
 			path = ViewModel;
@@ -424,7 +421,6 @@
 				34C1EF2F25EBDCDC0068C746 /* UICollectionView+visibleIndexPath.swift in Sources */,
 				34C1EF3225EBE2400068C746 /* CommonValues.swift in Sources */,
 				34AE5D2C25DAD538001E0F71 /* PhotoService.swift in Sources */,
-				34C452CB260A3CB700D0ABB2 /* RxDetailViewModel.swift in Sources */,
 				345AD07225E8E71A0059F6FC /* DataSource.swift in Sources */,
 				34C5054C25D6808E0014EEE4 /* SceneCoordinator.swift in Sources */,
 				34C5055B25D6A0A50014EEE4 /* EndPointType.swift in Sources */,

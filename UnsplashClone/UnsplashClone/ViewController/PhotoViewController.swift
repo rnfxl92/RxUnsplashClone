@@ -29,7 +29,7 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
         
         viewModel.photoData
             .asDriver(onErrorJustReturn: [])
-            .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
+            .drive(photoTableView.rx.items(dataSource: viewModel.tableViewDataSource))
             .disposed(by: rx.disposeBag)
         
         viewModel.fetchPhotoData(page: 0, perPage: CommonValues.perPage)
@@ -93,7 +93,7 @@ final class PhotoViewController: UIViewController, ViewModelBindableType {
 
 extension PhotoViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let photo = viewModel.dataSource[indexPath]
+        let photo = viewModel.tableViewDataSource[indexPath]
         
         let width = tableView.frame.width
         let ratio = CGFloat(photo.height) / CGFloat(photo.width)
@@ -104,21 +104,11 @@ extension PhotoViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         if isSearch {
-            let detailViewModel = RxDetailViewModel(
-                sceneCoordinator: viewModel.sceneCoordinator,
-                photoApi: viewModel.photoApi,
-                photoList: viewModel.searchedPhotoList,
-                query: searchBar.text)
-            let detailScene = Scene.detail(detailViewModel, indexPath, searchBar.text)
+            let detailScene = Scene.detail(viewModel, indexPath, searchBar.text)
             
             viewModel.sceneCoordinator.transition(to: detailScene, using: .modal, animated: true)
         } else {
-            let detailViewModel = RxDetailViewModel(
-                sceneCoordinator: viewModel.sceneCoordinator,
-                photoApi: viewModel.photoApi,
-                photoList: viewModel.photoList
-                )
-            let detailScene = Scene.detail(detailViewModel, indexPath, nil)
+            let detailScene = Scene.detail(viewModel, indexPath, nil)
             
             viewModel.sceneCoordinator.transition(to: detailScene, using: .modal, animated: true)
         }
@@ -126,7 +116,7 @@ extension PhotoViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let itemCount = viewModel.dataSource.sectionModels[0].items.count
+        let itemCount = viewModel.tableViewDataSource.sectionModels[0].items.count
         if indexPath.item == itemCount - 1 {
             let page = Int(ceil(Double(itemCount) / Double(CommonValues.perPage))) + 1
             if let text = searchBar.text,
@@ -137,7 +127,7 @@ extension PhotoViewController: UITableViewDelegate {
             }
         }
         
-        let photo = viewModel.dataSource[indexPath]
+        let photo = viewModel.tableViewDataSource[indexPath]
         guard let photoCell = cell as? PhotoTableViewCell else {
             return
         }
@@ -179,7 +169,7 @@ extension PhotoViewController: UISearchBarDelegate {
         photoTableView.dataSource = nil
         viewModel.searchedPhotoData
             .asDriver(onErrorJustReturn: [])
-            .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
+            .drive(photoTableView.rx.items(dataSource: viewModel.tableViewDataSource))
             .disposed(by: rx.disposeBag)
         viewModel.fetchSearchedPhotoData(page: 1, perPage: CommonValues.perPage, query: searchBarText)
     }
@@ -196,7 +186,7 @@ extension PhotoViewController: UISearchBarDelegate {
         photoTableView.dataSource = nil
         viewModel.photoData
             .asDriver(onErrorJustReturn: [])
-            .drive(photoTableView.rx.items(dataSource: viewModel.dataSource))
+            .drive(photoTableView.rx.items(dataSource: viewModel.tableViewDataSource))
             .disposed(by: rx.disposeBag)
         photoTableView.reloadData()
     }

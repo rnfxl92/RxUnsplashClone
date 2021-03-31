@@ -18,7 +18,7 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
     @IBOutlet weak var closeButton: UIBarButtonItem!
     
     weak var coordinator: SceneCoordinatorType?
-    var viewModel: RxDetailViewModel!
+    var viewModel: RxPhotoViewModel!
     var defaultIndexPath: IndexPath?
     var firstCall: Bool = true
     var query: String?
@@ -39,12 +39,17 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
     func bindViewModel() {
         
         if query != nil && query != "" {
+            viewModel.searchedPhotoData
+                .asDriver(onErrorJustReturn: [])
+                .drive(detailCollectionView.rx.items(dataSource: viewModel.collectionViewDataSource))
+                .disposed(by: rx.disposeBag)
+            
+        } else {
+            viewModel.photoData
+                .asDriver(onErrorJustReturn: [])
+                .drive(detailCollectionView.rx.items(dataSource: viewModel.collectionViewDataSource))
+                .disposed(by: rx.disposeBag)
         }
-        
-        viewModel.photoData
-            .asDriver(onErrorJustReturn: [])
-            .drive(detailCollectionView.rx.items(dataSource: viewModel.dataSource))
-            .disposed(by: rx.disposeBag)
         
         closeButton.rx.action = viewModel.closeAction
         
@@ -55,7 +60,7 @@ final class DetailViewController: UIViewController, ViewModelBindableType {
             return
         }
         print(defaultIndexPath)
-        let photo = viewModel.dataSource[defaultIndexPath]
+        let photo = viewModel.collectionViewDataSource[defaultIndexPath]
         print(photo.username)
         detailCollectionView.scrollToItem(at: defaultIndexPath, at: .right, animated: false)
         navigationTitleItem.title = photo.username
@@ -95,19 +100,19 @@ extension DetailViewController: UICollectionViewDelegateFlowLayout {
 extension DetailViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        let itemCount = viewModel.dataSource.sectionModels[0].items.count
+        let itemCount = viewModel.collectionViewDataSource.sectionModels[0].items.count
         
         if indexPath.item == itemCount - 1 {
             let page = Int(ceil(Double(itemCount) / Double(CommonValues.perPage))) + 1
-            if query != nil {
-                viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage)
+            if let query = query {
+                viewModel.fetchSearchedPhotoData(page: page, perPage: CommonValues.perPage, query: query)
             } else {
                 viewModel.fetchPhotoData(page: page, perPage: CommonValues.perPage)
             }
             
         }
         
-        let photo = viewModel.dataSource[indexPath]
+        let photo = viewModel.collectionViewDataSource[indexPath]
         guard let photoCell = cell as? DetailCollectionViewCell else {
             return
         }
@@ -127,6 +132,6 @@ extension DetailViewController: UIScrollViewDelegate {
             return
         }
 
-        navigationTitleItem.title = viewModel.dataSource[visibleIndexPath].username
+        navigationTitleItem.title = viewModel.collectionViewDataSource[visibleIndexPath].username
     }
 }

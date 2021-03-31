@@ -10,6 +10,7 @@ import RxSwift
 import RxCocoa
 import RxDataSources
 import NSObject_Rx
+import Action
 
 typealias SectionModel = AnimatableSectionModel<Int, Photo>
 
@@ -19,9 +20,9 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
     private var lastQuery = ""
     lazy var headerPhoto = photoApi.fetchRandomPhoto()
     lazy var photoData = BehaviorSubject<[SectionModel]>(value: [SectionModel(model: 0, items: photoList)])
-    var searchedPhotoData = PublishSubject<[SectionModel]>()
+    lazy var searchedPhotoData = BehaviorSubject<[SectionModel]>(value: [SectionModel(model: 0, items: searchedPhotoList)])
 
-    let dataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
+    let tableViewDataSource: RxTableViewSectionedAnimatedDataSource<SectionModel> = {
         let ds = RxTableViewSectionedAnimatedDataSource<SectionModel>(
             configureCell: { (dataSource, tableView, indexPath, photo) -> UITableViewCell in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoTableViewCell.Identifier.reusableCell, for: indexPath) as? PhotoTableViewCell else {
@@ -35,7 +36,20 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
 
         return ds
     }()
+    
+    let collectionViewDataSource: RxCollectionViewSectionedAnimatedDataSource<SectionModel> = {
+        let ds = RxCollectionViewSectionedAnimatedDataSource<SectionModel>(
+            configureCell: { (dataSource, collectionView, indexPath, photo) -> UICollectionViewCell in
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailCollectionViewCell.Identifier.reusableCell, for: indexPath) as? DetailCollectionViewCell else {
+                return UICollectionViewCell()
+            }
+                            
+                return cell
+        })
 
+        return ds
+    }()
+    
     func fetchPhotoData(page: Int, perPage: Int) {
         photoApi.fetchPhotos(page: page, perPage: perPage)
             .subscribe(onNext: { [unowned self] photos in
@@ -66,4 +80,9 @@ class RxPhotoViewModel: CommonViewModel, HasDisposeBag {
         let endPoint = UnsplashEndPoint.photoURL(url: url, width: width)
         return photoApi.fetchImage(endPoint: endPoint)
     }
+    
+    lazy var closeAction = CocoaAction { [unowned self] in
+        return self.sceneCoordinator.close(animated: true).asObservable().map { _ in }
+    }
+    
 }
