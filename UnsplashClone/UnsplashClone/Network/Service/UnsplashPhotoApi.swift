@@ -92,7 +92,14 @@ class UnsplashPhotoApi: PhotoApiType {
         
         return urlSession.rx
             .data(request: request)
-            .map { UIImage(data: $0) }
+            .map { [weak self] data in
+                guard let image = UIImage(data: data) else {
+                    throw NetworkError.imageError
+                }
+                self?.imageCache.setObject(image, forKey: url.lastPathComponent as NSString, cost: data.count)
+                
+                return image
+            }
             .catchAndReturn(nil)
     }
     
